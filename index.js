@@ -30,20 +30,20 @@ async function run() {
         // POST Events : add a new Inventory Item
         app.post('/inventory', async (req, res) => {
             const newInventory = req.body;
-            console.log('Adding New Event');
+            console.log('Adding New inventory Item', newInventory);
             const result = await inventoryCollection.insertOne(newInventory);
             console.log(result);
             res.send(result)
         })
 
 
-        //get all Events
-        // app.get('/event', async (req, res) => {
-        //     const query = {}
-        //     const cursor = eventCollection.find(query);
-        //     const events = await cursor.toArray()
-        //     res.send(events)
-        // })
+        //get all Inventory Item
+        app.get('/inventory', async (req, res) => {
+            const query = {}
+            const cursor = inventoryCollection.find(query);
+            const inventories = await cursor.toArray()
+            res.send(inventories)
+        })
 
 
         // delete an Event 
