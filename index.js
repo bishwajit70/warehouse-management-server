@@ -54,35 +54,31 @@ async function run() {
             res.send(result);
         })
 
-        // changes 
-        // app.get('/hero', (req, res)=>{
-        //     res.send('Hero meets heroku')
-        // })
 
-        // app.get('/user/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: ObjectId(id) };
-        //     const result = await userCollection.findOne(query)
-        //     res.send(result);
-        // })
+        app.get('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await inventoryCollection.findOne(query)
+            res.send(result);
+        })
 
-        //Specific User Update
-        // app.put('/user/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     console.log(id)
-        //     const updatedUser = req.body;
-        //     const filter = { _id: ObjectId(id) };
-        //     const options = { upsert: true };
-        //     const updatedDoc = {
-        //         $set: {
-        //             name: updatedUser.name,
-        //             email: updatedUser.email
-        //         },
-        //     };
-        //     const result = await userCollection.updateOne(filter, updatedDoc, options);
-        //     res.send(result);
+        // Specific inventoryitem Update
+        app.put('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const updatedQuantity = req.body;
+            console.log(updatedQuantity)
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    quantity: updatedQuantity.quantity,
+                },
+            };
+            const result = await inventoryCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
 
-        // })
+        })
 
 
     }
