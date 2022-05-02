@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
-const app = express()
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
+
+const app = express()
 
 const port = process.env.PORT || 5000
 
@@ -30,11 +32,20 @@ async function run() {
         // POST Events : add a new Inventory Item
         app.post('/inventory', async (req, res) => {
             const newInventory = req.body;
+            // const email = req.body;
+            // const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
+            // console.log(email);
             console.log('Adding New inventory Item', newInventory);
             const result = await inventoryCollection.insertOne(newInventory);
             console.log(result);
             res.send(result)
         })
+
+
+        // app.post('/login', (req, res) => {
+        //     const email = req.body;
+        //     console.log(email);
+        // })
 
 
         //get all Inventory Item
@@ -45,6 +56,23 @@ async function run() {
             res.send(inventories)
         })
 
+        // get my all my items 
+        app.get('/myitem', async (req, res) => {
+            const email = req.query.email
+            // console.log(email)
+            const query = { email: email }
+            const cursor = inventoryCollection.find(query)
+            const myItems = await cursor.toArray()
+            res.send(myItems)
+        })
+
+        // delete  my item 
+        app.delete('/myitem/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await inventoryCollection.deleteOne(query);
+            res.send(result);
+        })
 
         // delete an invetory item 
         app.delete('/inventory/:id', async (req, res) => {
