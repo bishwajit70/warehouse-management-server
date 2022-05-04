@@ -28,8 +28,9 @@ async function run() {
     try {
         await client.connect();
         const inventoryCollection = client.db("inventoryCollection").collection("inventory");
+        const infoCollection = client.db("inventoryCollection").collection("ContactInfo");
 
-        // POST Events : add a new Inventory Item
+        // POST Inventory Item : add a new Inventory Item
         app.post('/inventory', async (req, res) => {
             const newInventory = req.body;
             // const email = req.body;
@@ -41,11 +42,14 @@ async function run() {
             res.send(result)
         })
 
-
-        // app.post('/login', (req, res) => {
-        //     const email = req.body;
-        //     console.log(email);
-        // })
+        // POST Contact Info : add a new Contact Info 
+        app.post('/contactinfo', async (req, res) => {
+            const contactInfo = req.body;
+            console.log('Adding New Contact Info Item', contactInfo);
+            const result = await infoCollection.insertOne(contactInfo);
+            console.log(result);
+            res.send(result)
+        })
 
 
         //get all Inventory Item
@@ -94,13 +98,13 @@ async function run() {
         app.put('/inventory/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
-            const updatedQuantity = req.body;
-            console.log(updatedQuantity)
+            const newProduct = req.body;
+            console.log(newProduct)
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
-                    quantity: updatedQuantity.quantity,
+                    quantity: newProduct.quantity,
                 },
             };
             const result = await inventoryCollection.updateOne(filter, updatedDoc, options);
