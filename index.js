@@ -94,7 +94,7 @@ async function run() {
             res.send(result);
         })
 
-        // Specific inventoryitem Update
+        // Specific inventory item Update
         app.put('/inventory/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
@@ -105,6 +105,7 @@ async function run() {
             const updatedDoc = {
                 $set: {
                     quantity: newProduct.quantity,
+                    sold: newProduct.sold,
                 },
             };
             const result = await inventoryCollection.updateOne(filter, updatedDoc, options);
