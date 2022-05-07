@@ -133,12 +133,13 @@ async function run() {
             const id = req.params.id;
             console.log(id)
             const newProduct = req.body;
-            console.log(newProduct)
+            console.log(newProduct.sold)
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
                     quantity: newProduct.quantity,
+                    sold: newProduct.sold
                 },
             };
             const result = await inventoryCollection.updateOne(filter, updatedDoc, options);
