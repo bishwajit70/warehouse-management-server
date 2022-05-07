@@ -19,16 +19,44 @@ const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0-sh
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
+const verifyJWT = (req, res, next) => {
+    const accessToken = req.headers.accesstoken
+    const token = accessToken.split(' ')[1]
+    if (!accessToken) {
+        res.status(401).send({ message: "Unautorized Access" })
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            res.status(403).send({ message: "Forbidden Access" })
+        }
+        req.decoded = decoded;
+        next()
+    })
+
+
+}
+
 // root endpoint 
 app.get('/', (req, res) => {
     res.send('Hello Warehouse Management')
 })
 
 async function run() {
+
     try {
         await client.connect();
         const inventoryCollection = client.db("inventoryCollection").collection("inventory");
         const infoCollection = client.db("inventoryCollection").collection("ContactInfo");
+
+
+        app.post('/login', (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const result = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1d'
+            })
+            res.send({ result });
+        })
 
         // POST Inventory Item : add a new Inventory Item
         app.post('/inventory', async (req, res) => {
@@ -61,13 +89,19 @@ async function run() {
         })
 
         // get my all my items 
-        app.get('/myitem', async (req, res) => {
+        app.get('/myitem', verifyJWT, async (req, res) => {
+            const decoded = req.decoded
+
             const email = req.query.email
-            // console.log(email)
-            const query = { email: email }
-            const cursor = inventoryCollection.find(query)
-            const myItems = await cursor.toArray()
-            res.send(myItems)
+
+            if (email === decoded?.email) {
+                const query = { email: email }
+                const cursor = inventoryCollection.find(query)
+                const myItems = await cursor.toArray()
+                res.send(myItems)
+            }
+
+
         })
 
         // delete  my item 
@@ -94,7 +128,7 @@ async function run() {
             res.send(result);
         })
 
-        // Specific inventory item Update
+        // Specific inventoryitem Update
         app.put('/inventory/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
@@ -105,7 +139,6 @@ async function run() {
             const updatedDoc = {
                 $set: {
                     quantity: newProduct.quantity,
-                    sold: newProduct.sold,
                 },
             };
             const result = await inventoryCollection.updateOne(filter, updatedDoc, options);
