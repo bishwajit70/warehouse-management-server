@@ -9,7 +9,7 @@ const app = express()
 
 const port = process.env.PORT || 5000
 
-// middlewear 
+// middlewears 
 app.use(cors())
 app.use(express.json())
 
@@ -61,9 +61,6 @@ async function run() {
         // POST Inventory Item : add a new Inventory Item
         app.post('/inventory', async (req, res) => {
             const newInventory = req.body;
-            // const email = req.body;
-            // const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
-            // console.log(email);
             console.log('Adding New inventory Item', newInventory);
             const result = await inventoryCollection.insertOne(newInventory);
             console.log(result);
